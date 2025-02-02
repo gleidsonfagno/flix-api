@@ -1,47 +1,11 @@
-import json 
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import get_object_or_404
 from genres.models import Genre
+from rest_framework import generics
+from genres.serializers import GenreSerializer
 
-# Create your views here.
-@csrf_exempt
-def genre_create_list_view(request):
-    # vai devolver os dados 
-    if request.method == "GET":
-        genres = Genre.objects.all()
-        # data = [{"id": genre.id, "name": genre.name} for genre in genres]
-        data = []
-        for genre in  genres:
-            data.append(
-                {"id": genre.id, "name": genre.name}
-            )
-        return JsonResponse(data,safe=False)
-    elif request.method == "POST":
-        data = json.loads(request.body.decode("utf-8"))
-        new_genere = Genre(name=data["name"])
-        new_genere.save()
-        return JsonResponse({"id": new_genere.id, "name": new_genere.name},status=201)
+class GenreCreateListAPIView(generics.ListCreateAPIView):
+    queryset  = Genre.objects.all()
+    serializer_class = GenreSerializer
 
-# funçao de busca por id  de cada genero
-@csrf_exempt
-def genre_detail_view(request, pk):
-    genre = get_object_or_404(Genre, pk=pk)
-    #Genre.objects.get(pk=pk)
-
-    if request.method == "GET":
-        data = {"id":  genre.id, "name": genre.name}
-        return JsonResponse(data)
-    # atualiza
-    elif request.method == "PUT":
-        # rece o que o usuario ta mandando e transforma em json
-        data = json.loads(request.body.decode("utf-8"))
-        genre.name = data["name"]
-        genre.save()
-        return JsonResponse({"id": genre.id, "name": genre.name},status=201)
-
-    elif request.method == "DELETE":
-        genre.delete()
-        return JsonResponse(
-            {"message": "Gênero excluido com sucesso"}, status=204,
-        )
+class GenreRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
