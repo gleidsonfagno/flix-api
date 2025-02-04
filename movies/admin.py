@@ -1,3 +1,7 @@
 from django.contrib import admin
+from movies.models import Movie
 
-# Register your models here.
+
+@admin.register(Movie) # para registrar no admin
+class MovieAdmin(admin.ModelAdmin):
+    list_display = ("id", "title", "genre", "release_date", "resume",)
